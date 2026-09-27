@@ -1,0 +1,36 @@
+
+services:
+  notifier:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      args:
+        VERSION: compose-demo
+    volumes:
+      - ./config.sample.yaml:/etc/vm-notifier/config.yaml:ro
+    environment:
+      CONFIG_FILE: /etc/vm-notifier/config.yaml
+      AMQP_URL: amqp://guest:guest@rabbitmq:5672/
+      SMTP_ADDR: mailpit:1025
+      SMTP_TLS: none
+      MAIL_FROM: vm-notifier@example.org
+      MAIL_TO: admin@example.org
+      # Short enough to watch in a demo; the defaults are 60s and 60s.
+      FALLBACK_GRACE: 5s
+      DIGEST_INTERVAL: 15s
+      LOG_LEVEL: info
+    healthcheck:
+      test: ["CMD", "/notifier", "healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+    # Hardening.
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:size=16m,mode=1777

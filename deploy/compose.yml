@@ -8,9 +8,12 @@ services:
         VERSION: compose-demo
     volumes:
       - ./config.sample.yaml:/etc/vm-notifier/config.yaml:ro
+    ports:
+      - "0.0.0.0:9090:9090"
     environment:
+      HTTP_ADDR: "0.0.0.0:9090"
       CONFIG_FILE: /etc/vm-notifier/config.yaml
-      AMQP_URL: amqp://guest:guest@rabbitmq:5672/
+      AMQP_URL: amqp://openstack:a9iptibkrh7w9yFJLPtIdEsOBgqJpZFIbaYJ3rY8@192.168.1.203:5672/
       SMTP_ADDR: mailpit:1025
       SMTP_TLS: none
       MAIL_FROM: vm-notifier@example.org

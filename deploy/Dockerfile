@@ -11,14 +11,17 @@ ARG VERSION=dev
 ARG COMMIT=unknown
 
 RUN CGO_ENABLED=0 GOOS=linux go build \
-      -trimpath \
-      -ldflags "-s -w -X main.version=${VERSION} -X main.commit=${COMMIT}" \
-      -o /notifier ./cmd/notifier
+    -trimpath \
+    -ldflags "-s -w -X main.version=${VERSION} -X main.commit=${COMMIT}" \
+    -o /notifier ./cmd/notifier
+
+RUN mkdir -p /etc/vm-notifier
 
 
 FROM gcr.io/distroless/static-debian12:nonroot
 
 COPY --from=build /notifier /notifier
+COPY --from=build /etc/vm-notifier /etc/vm-notifier
 
 USER nonroot:nonroot
 

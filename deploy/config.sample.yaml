@@ -1,0 +1,88 @@
+# openstack-notifier — complete configuration file.
+#
+#   CONFIG_FILE=/etc/vm-notifier/config.yaml notifier
+#
+# Every setting is listed here at its **default**, so this file is a reference as much as a
+# starting point: copy it, change what you need, and delete the rest — anything you remove keeps
+# its default. The normative description of each setting is docs/CONFIG.md.
+#
+# Keys are the environment variable names, lower-cased, with `_` optionally written as nesting:
+# `amqp: {queue_ttl: 48h}`, `amqp: {queue: {ttl: 48h}}` and `amqp_queue_ttl: 48h` are the same
+# setting. Environment variables override this file, so the same deployment can keep its stable
+# settings here and its per-host ones in the environment.
+#
+# Secrets: every `*_file` key reads the value from a file, which is how a secret should reach this
+# service (systemd LoadCredential, a Docker/Kubernetes secret mount). A secret written literally in
+# here lives on disk in clear text — if you do it anyway, `chmod 0600` this file.
+
+# --- AMQP: what to consume, and how ---------------------------------------------------------
+amqp:
+  # Required. The broker Nova publishes to. Prefer url_file or the AMQP_URL environment variable.
+  url: amqp://vm_notifier:changeme@127.0.0.1:5672/
+  # url_file: /run/credentials/vm-notifier.service/amqp-url
+  ca_file: ""            # PEM bundle for amqps://; empty uses the system roots
+  exchange: nova         # Nova's exchange; we only check that it exists (ADR-0006)
+  binding_keys:          # .error carries the build failures — do not drop it
+    - versioned_notifications.info
+    - versioned_notifications.error
+  queue: vm_notifier     # our own queue; never consume Nova's
+  queue_type: classic    # classic | quorum
+  queue_ttl: 24h
+  queue_max_length: 100000
+  delivery_limit: 1000   # quorum queues only
+  dlq_ttl: 168h
+  dlq_max_length: 10000
+  prefetch: 64           # must be ≥ workers + digest_max + fallback_max
+  heartbeat: 10s
+  dial_timeout: 10s
+
+workers: 16
+max_body_bytes: 1048576
+event_types:
+  - instance.create.start
+  - instance.create.end
+  - instance.create.error
+  - compute_task.build_instances.error
+  - instance.update
+
+# --- State & correlation --------------------------------------------------------------------
+store: memory
+store_max_entries: 100000
+build_timeout_enabled: false   # true is only safe with a single replica while store is memory
+build_timeout: 15m
+fallback_grace: 60s            # hold a bare instance.update failure this long (ADR-0009); 0 disables
+fallback_max: 8
+
+# --- Notification ---------------------------------------------------------------------------
+notifier: mock          # smtp | mock
+mock_eml_dir: ""        # with notifier: mock, write each message here as .eml
+
+mail:
+  from: vm-notifier@example.org      # required
+  to:                                # required, one or more
+    - admin@example.org
+
+smtp:
+  addr: smtp.example.org:587         # required when notifier is smtp
+  tls: starttls                      # none | starttls | implicit
+  ca_file: ""
+  username: ""                       # set both or neither
+  password: ""                       # prefer password_file, or the environment
+  # password_file: /run/credentials/vm-notifier.service/smtp-password
+  timeout: 15s
+
+notify_retry_max_elapsed: 10m
+message_deadline: 20m    # must stay under RabbitMQ's consumer_timeout (30m by default)
+rate_per_min: 30
+rate_burst: 10
+digest_interval: 60s
+digest_max: 40
+traceback_max_bytes: 8192
+text_max_bytes: 1024
+templates_dir: ""        # override the built-in templates; needs all eight files
+
+# --- Operations -------------------------------------------------------------------------------
+http_addr: 127.0.0.1:9090   # /healthz /readyz /metrics; 0.0.0.0 exposes them to the network
+log_level: info             # debug | info | warn | error
+log_raw_payloads: false     # debug only, and payloads contain tenant data
+shutdown_timeout: 30s

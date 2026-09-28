@@ -1,0 +1,20 @@
+The VM build completed successfully.
+
+  Name           {{or .Name "(unnamed)"}}
+  UUID           {{.UUID}}
+  Project        {{or .ProjectID "unknown"}}
+  User           {{or .UserID "unknown"}}
+  Request ID     {{or .RequestID "unknown"}}
+  Flavor         {{if .HasFlavor}}{{.FlavorName}} — {{.VCPUs}} vCPU, {{.MemoryMB}} MB RAM, {{.DiskGB}} GB disk{{else}}unknown{{end}}
+  Image          {{or .ImageUUID "unknown"}}
+  Availability   {{or .AZ "unknown"}}
+  Host / node    {{or .Host "unknown"}} / {{or .Node "unknown"}}
+  State          {{or .State "unknown"}}
+  Addresses      {{if .IPs}}{{range $i, $ip := .IPs}}{{if $i}}
+                 {{end}}{{$ip.Address}} ({{or $ip.Label "-"}}, {{or $ip.MAC "-"}}){{end}}{{else}}none reported{{end}}
+  Created        {{.CreatedAt}}
+  Launched       {{.LaunchedAt}}
+  Build time     {{.Duration}}
+
+Reported by {{or .PublisherID "unknown"}} at {{.EventAt}} ({{.EventType}}).
+Message {{or .MessageID "unknown"}}.

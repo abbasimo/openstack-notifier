@@ -1,0 +1,31 @@
+The VM build FAILED.
+
+  Name           {{or .Name "(unnamed)"}}
+  UUID           {{.UUID}}
+  Stage          {{.Stage}}{{if .Fallback}} (no detailed failure event arrived; see below){{end}}
+  Project        {{or .ProjectID "unknown"}}
+  User           {{or .UserID "unknown"}}
+  Request ID     {{or .RequestID "unknown"}}
+  Flavor         {{if .HasFlavor}}{{.FlavorName}} — {{.VCPUs}} vCPU, {{.MemoryMB}} MB RAM, {{.DiskGB}} GB disk{{else}}unknown{{end}}
+  Image          {{or .ImageUUID "unknown"}}
+  Availability   {{or .AZ "unknown"}}
+  Host / node    {{or .Host "unknown"}} / {{or .Node "unknown"}}
+  State          {{or .State "unknown"}}
+  Created        {{.CreatedAt}}
+  Failed after   {{.Duration}}
+{{if .Fault}}
+Cause
+  Exception      {{or .Fault.Exception "unknown"}}
+  Message        {{or .Fault.Message "(none)"}}
+  Raised in      {{or .Fault.Module "unknown"}}.{{or .Fault.Function "unknown"}}
+{{else}}
+No fault details are available for this failure. Nova reported the instance entering ERROR
+without an accompanying error notification; check the nova-compute and nova-conductor logs for
+request {{or .RequestID "(unknown request id)"}}.
+{{end}}
+Reported by {{or .PublisherID "unknown"}} at {{.EventAt}} ({{.EventType}}).
+Message {{or .MessageID "unknown"}}.
+{{if and .Fault .Fault.Traceback}}
+Traceback{{if .Fault.Truncated}} (truncated){{end}}
+{{.Fault.Traceback}}
+{{end}}

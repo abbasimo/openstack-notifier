@@ -1,0 +1,31 @@
+<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:14px;color:#1b1b1b">
+  <h2 style="margin:0 0 4px">{{.Total}} VM build notifications</h2>
+  <p style="margin:0 0 16px;color:#57606a">{{.FailureCount}} failed &middot; generated {{.Generated}}</p>
+  {{if .Failures}}
+  <h3 style="margin:20px 0 4px;font-size:14px;color:#cf222e">Failures ({{len .Failures}})</h3>
+  <table cellpadding="6" cellspacing="0" style="border-collapse:collapse;font-size:13px">
+    <tr style="background:#f6f8fa"><th align="left">Instance</th><th align="left">Stage</th><th align="left">Cause</th><th align="left">Host</th><th align="left">When</th></tr>
+    {{range .Failures}}
+    <tr style="border-top:1px solid #d0d7de">
+      <td>{{or .Name "(unnamed)"}}<br><span style="color:#8c959f">{{.UUID}}</span></td>
+      <td>{{.Stage}}</td>
+      <td>{{if .Fault}}<strong>{{or .Fault.Exception "unknown"}}</strong><br>{{or .Fault.Message ""}}{{else}}no fault details{{end}}</td>
+      <td>{{or .Host "unknown"}}</td>
+      <td>{{.EventAt}}</td>
+    </tr>
+    {{end}}
+  </table>
+  {{end}}
+  {{if .Timeouts}}
+  <h3 style="margin:20px 0 4px;font-size:14px;color:#9a6700">Timed out ({{len .Timeouts}})</h3>
+  <ul style="margin:0;padding-left:20px">
+    {{range .Timeouts}}<li>{{or .Name "(unnamed)"}} <span style="color:#8c959f">{{.UUID}}</span> — waited {{.Duration}}</li>{{end}}
+  </ul>
+  {{end}}
+  {{if .Successes}}
+  <h3 style="margin:20px 0 4px;font-size:14px;color:#1a7f37">Succeeded ({{len .Successes}})</h3>
+  <ul style="margin:0;padding-left:20px">
+    {{range .Successes}}<li>{{or .Name "(unnamed)"}} <span style="color:#8c959f">{{.UUID}}</span> — on {{or .Host "unknown"}} in {{.Duration}}</li>{{end}}
+  </ul>
+  {{end}}
+</div>

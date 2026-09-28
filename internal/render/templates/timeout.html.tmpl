@@ -1,0 +1,15 @@
+<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:14px;color:#1b1b1b">
+  <h2 style="margin:0 0 4px;color:#9a6700">VM build timed out</h2>
+  <p style="margin:0 0 16px;color:#57606a">{{or .Name "(unnamed)"}} &middot; {{.UUID}}</p>
+  <p style="margin:0 0 16px">No terminal notification (success or failure) arrived for this instance
+  within the configured build timeout. The build may still be running, or the notification may have
+  been lost.</p>
+  <table cellpadding="4" cellspacing="0" style="border-collapse:collapse;font-size:13px">
+    <tr><td style="color:#57606a">Project</td><td>{{or .ProjectID "unknown"}}</td></tr>
+    <tr><td style="color:#57606a">Request ID</td><td>{{or .RequestID "unknown"}}</td></tr>
+    <tr><td style="color:#57606a">Started</td><td>{{.EventAt}}</td></tr>
+    <tr><td style="color:#57606a">Waited</td><td>{{.Duration}}</td></tr>
+  </table>
+  <p style="margin:16px 0 0;font-size:13px">Check the instance with
+    <code>openstack server show {{.UUID}}</code>.</p>
+</div>

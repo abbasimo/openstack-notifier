@@ -1,0 +1,37 @@
+<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;font-size:14px;color:#1b1b1b">
+  <h2 style="margin:0 0 4px;color:#cf222e">VM build FAILED</h2>
+  <p style="margin:0 0 16px;color:#57606a">{{or .Name "(unnamed)"}} &middot; {{.UUID}}</p>
+  <table cellpadding="4" cellspacing="0" style="border-collapse:collapse;font-size:13px">
+    <tr><td style="color:#57606a">Stage</td><td>{{.Stage}}{{if .Fallback}} <em>(no detailed failure event arrived)</em>{{end}}</td></tr>
+    <tr><td style="color:#57606a">Project</td><td>{{or .ProjectID "unknown"}}</td></tr>
+    <tr><td style="color:#57606a">User</td><td>{{or .UserID "unknown"}}</td></tr>
+    <tr><td style="color:#57606a">Request ID</td><td>{{or .RequestID "unknown"}}</td></tr>
+    <tr><td style="color:#57606a">Flavor</td><td>{{if .HasFlavor}}{{.FlavorName}} &mdash; {{.VCPUs}} vCPU, {{.MemoryMB}} MB RAM, {{.DiskGB}} GB disk{{else}}unknown{{end}}</td></tr>
+    <tr><td style="color:#57606a">Image</td><td>{{or .ImageUUID "unknown"}}</td></tr>
+    <tr><td style="color:#57606a">Availability zone</td><td>{{or .AZ "unknown"}}</td></tr>
+    <tr><td style="color:#57606a">Host / node</td><td>{{or .Host "unknown"}} / {{or .Node "unknown"}}</td></tr>
+    <tr><td style="color:#57606a">State</td><td>{{or .State "unknown"}}</td></tr>
+    <tr><td style="color:#57606a">Created</td><td>{{.CreatedAt}}</td></tr>
+    <tr><td style="color:#57606a">Failed after</td><td>{{.Duration}}</td></tr>
+  </table>
+  {{if .Fault}}
+  <h3 style="margin:20px 0 4px;font-size:14px">Cause</h3>
+  <table cellpadding="4" cellspacing="0" style="border-collapse:collapse;font-size:13px">
+    <tr><td style="color:#57606a">Exception</td><td><strong>{{or .Fault.Exception "unknown"}}</strong></td></tr>
+    <tr><td style="color:#57606a">Message</td><td>{{or .Fault.Message "(none)"}}</td></tr>
+    <tr><td style="color:#57606a">Raised in</td><td>{{or .Fault.Module "unknown"}}.{{or .Fault.Function "unknown"}}</td></tr>
+  </table>
+  {{else}}
+  <p style="margin:20px 0 0">No fault details are available. Nova reported the instance entering ERROR
+  without an accompanying error notification; check the nova-compute and nova-conductor logs for
+  request {{or .RequestID "(unknown request id)"}}.</p>
+  {{end}}
+  <p style="margin:16px 0 0;color:#8c959f;font-size:12px">
+    Reported by {{or .PublisherID "unknown"}} at {{.EventAt}} ({{.EventType}}).<br>
+    Message {{or .MessageID "unknown"}}.
+  </p>
+  {{if and .Fault .Fault.Traceback}}
+  <h3 style="margin:20px 0 4px;font-size:14px">Traceback{{if .Fault.Truncated}} (truncated){{end}}</h3>
+  <pre style="background:#f6f8fa;padding:12px;overflow-x:auto;font-size:12px;white-space:pre-wrap">{{.Fault.Traceback}}</pre>
+  {{end}}
+</div>

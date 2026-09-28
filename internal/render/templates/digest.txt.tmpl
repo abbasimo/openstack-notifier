@@ -1,0 +1,14 @@
+{{.Total}} VM build notifications, {{.FailureCount}} of them failures.
+Generated {{.Generated}}.
+{{if .Failures}}
+FAILURES ({{len .Failures}})
+{{range .Failures}}  - {{or .Name "(unnamed)"}} [{{.UUID}}]
+      stage {{.Stage}}{{if .Fault}}, {{or .Fault.Exception "unknown"}}: {{or .Fault.Message "(no message)"}}{{else}}, no fault details{{end}}
+      host {{or .Host "unknown"}}, project {{or .ProjectID "unknown"}}, at {{.EventAt}}
+{{end}}{{end}}{{if .Timeouts}}
+TIMED OUT ({{len .Timeouts}})
+{{range .Timeouts}}  - {{or .Name "(unnamed)"}} [{{.UUID}}] waited {{.Duration}}
+{{end}}{{end}}{{if .Successes}}
+SUCCEEDED ({{len .Successes}})
+{{range .Successes}}  - {{or .Name "(unnamed)"}} [{{.UUID}}] on {{or .Host "unknown"}} in {{.Duration}}
+{{end}}{{end}}

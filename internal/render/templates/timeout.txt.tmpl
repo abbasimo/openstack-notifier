@@ -1,0 +1,13 @@
+The VM build did not finish in time.
+
+No terminal notification (success or failure) arrived for this instance within the configured
+build timeout. The build may still be running, or the notification may have been lost.
+
+  Name           {{or .Name "(unnamed)"}}
+  UUID           {{.UUID}}
+  Project        {{or .ProjectID "unknown"}}
+  Request ID     {{or .RequestID "unknown"}}
+  Started        {{.EventAt}}
+  Waited         {{.Duration}}
+
+Check the instance with:  openstack server show {{.UUID}}
